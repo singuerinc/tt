@@ -1,0 +1,24 @@
+{
+  "name": "tt",
+  "version": "1.0.0",
+  "main": "index.js",
+  "repository": "git@github.com:singuerinc/tt.git",
+  "author": "singuerinc <nahuel.scotti@gmail.com>",
+  "license": "MIT",
+  "scripts": {
+    "start": "parcel index.html"
+  },
+  "devDependencies": {
+    "@types/ramda": "^0.25.51",
+    "nodemon": "^1.18.10",
+    "parcel-bundler": "^1.12.0",
+    "typescript": "^3.3.3333"
+  },
+  "dependencies": {
+    "animejs": "^3.0.1",
+    "pixi.js": "^5.0.0-rc.2",
+    "ramda": "^0.26.1",
+    "rxjs": "^6.4.0",
+    "xstate": "^4.3.3"
+  }
+}
