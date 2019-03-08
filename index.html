@@ -5,8 +5,59 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <title>TT</title>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <link
+      href="https://fonts.googleapis.com/icon?family=Material+Icons"
+      rel="stylesheet"
+    />
+    <style>
+      * {
+        -webkit-font-smoothing: antialiased;
+        text-rendering: optimizeLegibility;
+        -moz-osx-font-smoothing: grayscale;
+        font-feature-settings: "liga";
+      }
+      .material-icons {
+        font-family: "Material Icons";
+        font-weight: normal;
+        font-style: normal;
+        font-size: 24px; /* Preferred icon size */
+        display: inline-block;
+        line-height: 1;
+        text-transform: none;
+        letter-spacing: normal;
+        word-wrap: normal;
+        white-space: nowrap;
+        direction: ltr;
+      }
+
+      .pulse {
+        position: relative;
+      }
+
+      .pulse::after {
+        content: "";
+        width: 0.5em;
+        height: 0.5em;
+        top: 0.3em;
+        right: 0.3em;
+        border-radius: 999px;
+        position: absolute;
+        animation: pulse 1s infinite;
+        animation-direction: alternate-reverse;
+      }
+
+      @keyframes pulse {
+        0% {
+          background-color: #fff;
+        }
+        100% {
+          background-color: #ff0000;
+        }
+      }
+    </style>
   </head>
-  <body>
-    <script src="src/index.ts"></script>
+  <body class="sans-serif">
+    <div id="root"></div>
+    <script src="src/index.tsx"></script>
   </body>
 </html>
