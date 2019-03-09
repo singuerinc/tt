@@ -2,14 +2,6 @@ import { Observable, Subscribable } from "rxjs";
 import { interpret, Machine } from "xstate";
 import { Interpreter } from "xstate/lib/interpreter";
 
-export type Size = 1 | 2 | 3;
-
-interface IRoom {
-  size: Size;
-  floor: number;
-  amount: number;
-}
-
 export interface RoomStateSchema {
   states: {
     free: {};
@@ -23,7 +15,7 @@ export interface RoomStateSchema {
 
 export type RoomEvent =
   | { type: "ISSUE" }
-  | { type: "CLEANING" }
+  | { type: "CLEAN" }
   | { type: "SERVICE" }
   | { type: "SLEEP" }
   | { type: "EXIT" };
@@ -45,7 +37,7 @@ const machine = () =>
       },
       dirty: {
         on: {
-          CLEANING: "cleaning"
+          CLEAN: "cleaning"
         }
       },
       cleaning: {
@@ -68,28 +60,30 @@ const machine = () =>
     }
   });
 
-export class Room implements IRoom {
+export class Room {
   public id: number;
+  public state: string = "free";
   public amount: number = 0;
   public events: Subscribable<RoomEvent>;
   public money: Subscribable<{ total: number; cash: number }>;
-  public size: Size;
+  public size: 1 | 2 | 3;
+  public numPeople: 0 | 1 | 2 | 3 = 0;
   public floor: number = 0;
+  private h: Interpreter<{}, RoomStateSchema, RoomEvent>;
 
   constructor({ id }) {
     this.id = id;
-    this.size = 1 + Math.floor(Math.random() * 3);
+    this.size = [1, 2, 3][Math.floor(Math.random() * 3)];
 
     const $$ = o => {
       o.next();
     };
 
-    const h: Interpreter<{}, RoomStateSchema, RoomEvent> = interpret(
-      machine()
-    ).start();
+    this.h = interpret(machine()).start();
 
     this.money = Observable.create(o => {
-      h.onTransition(state => {
+      this.h.onTransition(state => {
+        console.log(`Room #${this.id} / state:${state.value}`);
         if (state.value === "sleep") {
           const cash = 10 * this.size;
           this.amount += cash;
@@ -107,25 +101,41 @@ export class Room implements IRoom {
           this.amount -= cash;
           o.next({ total: this.amount, cash });
         }
-
-        // console.log(`Room #${this.id} / $${this.amount}`);
       });
     });
 
     this.events = Observable.create(o => {
-      h.onTransition(state => {
+      this.h.onTransition(state => {
+        this.state = state.value;
         o.next(state.value);
       });
     });
 
-    h.start();
+    this.h.start();
 
-    setInterval(() => {
-      h.send(
-        ["ISSUE", "CLEANING", "SERVICE", "SLEEP", "EXIT"][
-          Math.floor(Math.random() * 5)
-        ]
-      );
-    }, 10000 + Math.random() * 5000);
+    // setInterval(() => {
+    //   this.h.send(
+    //     ["ISSUE", "SERVICE", "SLEEP", "EXIT"][Math.floor(Math.random() * 5)]
+    //   );
+    // }, 10000 + Math.random() * 5000);
+  }
+
+  in(numPeople: 1 | 2 | 3) {
+    this.numPeople = numPeople;
+    this.h.send("SLEEP");
+
+    setTimeout(() => {
+      this.numPeople = 0;
+      this.h.send("EXIT");
+    }, 10000);
+  }
+
+  clean() {
+    console.log("next", "clean");
+    this.h.send("CLEAN");
+
+    setTimeout(() => {
+      this.h.send("EXIT");
+    }, 5000);
   }
 }

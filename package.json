@@ -16,6 +16,7 @@
     "typescript": "^3.3.3333"
   },
   "dependencies": {
+    "animejs": "^3.0.1",
     "ramda": "^0.26.1",
     "react": "^16.8.4",
     "react-dom": "^16.8.4",
