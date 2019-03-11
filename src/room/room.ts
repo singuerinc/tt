@@ -1,92 +1,35 @@
 import { Observable, Subscribable } from "rxjs";
-import { interpret, Machine } from "xstate";
+import { interpret, State, StateValue } from "xstate";
 import { Interpreter } from "xstate/lib/interpreter";
+import { machine, RoomEvent, RoomStateSchema } from "./machine";
 
-export interface RoomStateSchema {
-  states: {
-    free: {};
-    manteinance: {};
-    cleaning: {};
-    service: {};
-    sleep: {};
-    dirty: {};
-  };
-}
-
-export type RoomEvent =
-  | { type: "ISSUE" }
-  | { type: "CLEAN" }
-  | { type: "SERVICE" }
-  | { type: "SLEEP" }
-  | { type: "EXIT" };
-
-const machine = () =>
-  Machine<{}, RoomStateSchema, RoomEvent>({
-    key: "room-1",
-    initial: "free",
-    states: {
-      free: {
-        on: {
-          SLEEP: "sleep"
-        }
-      },
-      manteinance: {
-        on: {
-          EXIT: "cleaning"
-        }
-      },
-      dirty: {
-        on: {
-          CLEAN: "cleaning"
-        }
-      },
-      cleaning: {
-        on: {
-          EXIT: "free"
-        }
-      },
-      service: {
-        on: {
-          EXIT: "sleep"
-        }
-      },
-      sleep: {
-        on: {
-          ISSUE: "manteinance",
-          SERVICE: "service",
-          EXIT: "dirty"
-        }
-      }
-    }
-  });
+const addAmount = (a, c) => a + c;
 
 export class Room {
   public id: number;
-  public state: string = "free";
-  public amount: number = 0;
+  public state: StateValue = "free";
+  public amount: number;
   public events: Subscribable<RoomEvent>;
   public money: Subscribable<{ total: number; cash: number }>;
-  public size: 1 | 2 | 3;
-  public numPeople: 0 | 1 | 2 | 3 = 0;
-  public floor: number = 0;
+  public size: number;
+  public numPeople: number;
+  public floor: number;
   private h: Interpreter<{}, RoomStateSchema, RoomEvent>;
 
   constructor({ id }) {
     this.id = id;
+    this.amount = 0;
+    this.floor = 0;
+    this.numPeople = 0;
     this.size = [1, 2, 3][Math.floor(Math.random() * 3)];
-
-    const $$ = o => {
-      o.next();
-    };
-
     this.h = interpret(machine()).start();
 
     this.money = Observable.create(o => {
-      this.h.onTransition(state => {
+      this.h.onTransition((state: State<{}, RoomEvent>) => {
         console.log(`Room #${this.id} / state:${state.value}`);
         if (state.value === "sleep") {
           const cash = 10 * this.size;
-          this.amount += cash;
+          this.amount = cash;
           o.next({ total: this.amount, cash });
         } else if (state.value === "service") {
           const cash = 3;

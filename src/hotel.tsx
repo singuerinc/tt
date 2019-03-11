@@ -1,7 +1,7 @@
 import range from "ramda/es/range";
 import * as React from "react";
 import { useState } from "react";
-import { Room } from "./room";
+import { Room } from "./room/room";
 import { RoomUI } from "./ui/Room";
 
 interface IGroup {
@@ -33,13 +33,13 @@ export function Hotel() {
     const freeRoom = rooms.find(room => {
       return room.size >= numPeople && room.state === "free";
     });
+
     if (freeRoom) {
       freeRoom.in(numPeople);
       setQueue(queue => queue.filter(g => g !== group));
     }
   };
 
-  console.log("render!!!!!");
   return (
     <>
       <ul className="list flex flex-wrap w-100 ma0 pa0">
