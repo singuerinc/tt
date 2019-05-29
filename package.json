@@ -9,7 +9,7 @@
     "start": "parcel index.html"
   },
   "devDependencies": {
-    "@types/ramda": "^0.25.51",
+    "@types/ramda": "^0.26.9",
     "@types/react": "^16.8.7",
     "@types/react-dom": "^16.8.2",
     "parcel-bundler": "^1.12.0",
